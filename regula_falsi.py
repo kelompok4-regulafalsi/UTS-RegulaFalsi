@@ -182,4 +182,107 @@ class KalkulatorRegulaFalsi:
             
             # Bersihkan hasil sebelumnya
             self.hasil_text.delete(1.0, tk.END)
+
+            
+            # HEADER TABEL
+            self.hasil_text.insert(tk.END, "=" * 167 + "\n")
+            header = (f"{'Iterasi':^9} | {'a':^15} | {'b':^15} | {'f(a)':^15} | {'f(b)':^15} | "
+                      f"{'xr':^15} | {'f(xr)':^15} | {'f(xr)*f(b)':^15} | {'|f(xr)|':^15} | \n")
+           
+            self.hasil_text.insert(tk.END, header)
+            self.hasil_text.insert(tk.END, "=" * 167 + "\n")
+                        
+            # Iterasi Regula Falsi
+            iterasi_akar = None
+            xr = None
+            
+            for i in range(1, max_iter + 1):
+                # Hitung f(a) dan f(b) setiap iterasi
+                fa = self.f(a)
+                fb = self.f(b)
+                
+                if fa - fb == 0:
+                    messagebox.showerror("Error", "Pembagian oleh nol! Pilih interval berbeda.")
+                    return
+                
+                # RUMUS xr: xr = (f(a)*b - f(b)*a) / (f(a) - f(b))
+                xr = (fa * b - fb * a) / (fa - fb)
+                fxr = self.f(xr)
+                fxr_fb = fxr * fb  # f(xr) * f(b)
+                error = abs(fxr)
+                
+                # Format output
+                baris = (f"{i:^9} | {a:^15.6f} | {b:^15.6f} | {fa:^15.6f} | {fb:^15.6f} | "
+                         f"{xr:^15.6f} | {fxr:^15.6f} | {fxr_fb:^15.6f} | {error:^15.6f} | \n")
+
+               
+                self.hasil_text.insert(tk.END, baris)
+                
+                # Cek konvergensi
+                if error < toleransi:
+                    iterasi_akar = i
+                    break
+                
+                # UPDATE INTERVAL SESUAI RUMUS ANDA
+                # a = if(f(xr).f(b) < 0; a; xr)
+                # b = if(f(xr).f(b) > 0; b; xr)
+                
+                if fxr_fb < 0:
+                    # f(xr)*f(b) < 0 → a = a (tetap)
+                    a = a
+                else:
+                    # f(xr)*f(b) >= 0 → a = xr
+                    a = xr
+                
+                if fxr_fb > 0:
+                    # f(xr)*f(b) > 0 → b = b (tetap)
+                    b = b
+                else:
+                    # f(xr)*f(b) <= 0 → b = xr
+                    b = xr
+            
+            # Tampilkan hasil akhir
+            self.hasil_text.see(tk.END)
+            
+            if iterasi_akar:
+                self.hasil_akhir.config(
+                    text=f"Akar ditemukan: x = {xr:.8f} (Iterasi {iterasi_akar})", 
+                    fg="green"
+                )
+                messagebox.showinfo(
+                    "Hasil Perhitungan",
+                    f"Akar ditemukan!\n\nxr = {xr:.6f}\nIterasi ke-{iterasi_akar}\n\nPerhitungan selesai dengan sukses."
+                )
+            else:
+                self.hasil_akhir.config(
+                    text=f"Aproksimasi: xr = {xr:.8f} (Max iterasi tercapai)", 
+                    fg="orange"
+                )
+                messagebox.showinfo(
+                    "Hasil Perhitungan",
+                    f"Aproksimasi akar didapatkan.\n\nxr = {xr:.6f}\nTelah mencapai iterasi maksimum ({max_iter})."
+                )
+                
+        except ValueError:
+            messagebox.showerror("Error", "Input tidak valid! Pastikan angka diisi dengan benar.")
+        except ZeroDivisionError:
+            messagebox.showerror("Error", "Pembagian oleh nol! Pilih interval yang berbeda.")
+        except Exception as e:
+            messagebox.showerror("Error", f"Terjadi kesalahan: {str(e)}")
+    
+    def reset(self):
+        """Reset semua input dan hasil"""
+        self.fungsi_entry.delete(0, tk.END)
+        self.a_entry.delete(0, tk.END)
+        self.b_entry.delete(0, tk.END)
+        self.toleransi_entry.delete(0, tk.END)
+        self.iterasi_entry.delete(0, tk.END)
+        self.hasil_text.delete(1.0, tk.END)
+        self.hasil_akhir.config(text="Akar: Belum dihitung", fg="red")
+
+# Jalankan program
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = KalkulatorRegulaFalsi(root)
+    root.mainloop()
     
