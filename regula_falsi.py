@@ -112,4 +112,74 @@ class KalkulatorRegulaFalsi:
         func_str = re.sub(r'(\))([a-zA-Z0-9])', r'\1*\2', func_str)
         func_str = re.sub(r'([a-zA-Z0-9])(\()', r'\1*\2', func_str)
         return func_str
+
+    # Hitung fungsi dengan aman
+    def f(self, x):
+        """Menghitung nilai fungsi dengan keamanan"""
+        try:
+            fungsi_python = self.konversi_fungsi_ke_python(self.fungsi_entry.get())
+            safe_dict = {
+                'x': x, 'math': math, 'sin': math.sin, 'cos': math.cos, 'tan': math.tan,
+                'log': math.log, 'log10': math.log10, 'exp': math.exp, 'sqrt': math.sqrt,
+                'pi': math.pi, 'e': math.e
+            }
+            result = eval(fungsi_python, {"__builtins__": {}}, safe_dict)
+            return result
+        except:
+            return None
+    
+    # Fungsi hitung(),Proses Utama Metode Regula Falsi
+    def hitung(self):
+        """Menghitung akar dengan metode Regula Falsi"""
+        try:
+            # Validasi input tidak kosong
+            if not self.fungsi_entry.get().strip():
+                messagebox.showerror("Error", "Fungsi f(x) harus diisi!")
+                return
+            if not self.a_entry.get().strip():
+                messagebox.showerror("Error", "Batas atas (a) harus diisi!")
+                return
+            if not self.b_entry.get().strip():
+                messagebox.showerror("Error", "Batas bawah (b) harus diisi!")
+                return
+            if not self.toleransi_entry.get().strip():
+                messagebox.showerror("Error", "Toleransi error harus diisi!")
+                return
+            if not self.iterasi_entry.get().strip():
+                messagebox.showerror("Error", "Max iterasi harus diisi!")
+                return
+            
+            # Ambil input - SUDAH DIBALIK
+            a = float(self.a_entry.get())  # a = batas atas
+            b = float(self.b_entry.get())  # b = batas bawah
+            
+            # Validasi: a harus > b (karena a batas atas, b batas bawah)
+            if a <= b:
+                messagebox.showerror("Error", "Batas atas (a) harus lebih besar dari batas bawah (b)!")
+                return
+            
+            toleransi = float(self.toleransi_entry.get())
+            max_iter = int(self.iterasi_entry.get())
+            
+            if toleransi <= 0:
+                messagebox.showerror("Error", "Toleransi harus lebih besar dari 0!")
+                return
+            if max_iter <= 0:
+                messagebox.showerror("Error", "Max iterasi harus lebih besar dari 0!")
+                return
+            
+            # Validasi fungsi
+            if self.f(a) is None or self.f(b) is None:
+                messagebox.showerror("Error", "Fungsi tidak valid! Periksa format fungsi.")
+                return
+            
+            # Validasi interval
+            fa = self.f(a)
+            fb = self.f(b)
+            if fa * fb > 0:
+                messagebox.showerror("Error", f"f(a) dan f(b) harus berbeda tanda!\nf({a}) = {fa:.4f}, f({b}) = {fb:.4f}")
+                return
+            
+            # Bersihkan hasil sebelumnya
+            self.hasil_text.delete(1.0, tk.END)
     
