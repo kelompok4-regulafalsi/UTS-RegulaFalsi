@@ -24,7 +24,6 @@ class KalkulatorRegulaFalsi:
         # Background utama
         root.configure(bg=self.bg_color)
 
-                
         # Configure font
         self.font_style = ("Times New Roman", 10)
         self.font_bold = ("Times New Roman", 11, "bold")
@@ -85,4 +84,32 @@ class KalkulatorRegulaFalsi:
         tk.Button(button_frame, text="RESET", command=self.reset, 
                  bg="lightcoral", font=self.font_style, width=10).pack(side="left", padx=5)
         
-
+        # Hasil
+        hasil_frame = tk.Frame(root)
+        hasil_frame.pack(pady=10, fill="both", expand=True)
+        
+        tk.Label(hasil_frame, text="Hasil Iterasi:", font=self.font_bold).pack(anchor="w")
+        
+        # Text area & Scrollbar
+        self.hasil_text = tk.Text(hasil_frame, height=15, width=95, font=("Courier New", 10), bg=self.text_bg, fg=self.text_fg)#.font_result)
+        scrollbar = tk.Scrollbar(hasil_frame, command=self.hasil_text.yview)
+        self.hasil_text.configure(yscrollcommand=scrollbar.set)
+        
+        self.hasil_text.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+        
+        # Label hasil akhir
+        self.hasil_akhir = tk.Label(root, text="Akar: Belum dihitung", 
+                                   font=self.font_bold, fg="red")
+        self.hasil_akhir.pack(pady=5)
+    
+    # fungsi konversi string ke fungsi python
+    def konversi_fungsi_ke_python(self, func_str):
+        """Konversi fungsi matematika ke format Python"""
+        func_str = func_str.replace("^", "**")
+        func_str = re.sub(r'(\d)([a-zA-Z])', r'\1*\2', func_str)
+        func_str = re.sub(r'([a-zA-Z])(\d)', r'\1*\2', func_str)
+        func_str = re.sub(r'(\))([a-zA-Z0-9])', r'\1*\2', func_str)
+        func_str = re.sub(r'([a-zA-Z0-9])(\()', r'\1*\2', func_str)
+        return func_str
+    
